@@ -2,6 +2,7 @@ package com.react.crud.SpringReactCrud.controller;
 
 import com.react.crud.SpringReactCrud.domain.Group;
 import com.react.crud.SpringReactCrud.repository.GroupRepository;
+import com.react.crud.SpringReactCrud.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +19,11 @@ import java.util.List;
 public class GroupController {
 
     private GroupRepository repository;
+    private UserRepository userRepository;
 
-    public GroupController(GroupRepository repository) {
+    public GroupController(GroupRepository repository, UserRepository userRepository) {
         this.repository = repository;
+        this.userRepository = userRepository;
     }
 
     //TODO find All
