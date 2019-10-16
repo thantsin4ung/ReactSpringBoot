@@ -33,7 +33,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("api/v1/logout")
+    @PostMapping("/api/v1/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, @AuthenticationPrincipal(expression = "idToken") OidcIdToken token) {
         String logoutUrl = this.registration.getProviderDetails()
                 .getConfigurationMetadata().get("end_session_endpoint").toString();
