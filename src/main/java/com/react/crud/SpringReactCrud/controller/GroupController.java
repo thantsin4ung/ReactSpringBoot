@@ -1,16 +1,22 @@
 package com.react.crud.SpringReactCrud.controller;
 
 import com.react.crud.SpringReactCrud.domain.Group;
+import com.react.crud.SpringReactCrud.domain.User;
 import com.react.crud.SpringReactCrud.repository.GroupRepository;
 import com.react.crud.SpringReactCrud.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.Principal;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 @RestController
@@ -28,8 +34,8 @@ public class GroupController {
 
     //TODO find All
     @GetMapping("/groups")
-    public List<Group> groups(){
-        return repository.findAll();
+    public List<Group> groups(Principal principal){
+        return repository.findAllByUserId(principal.getName());
     }
 
     //TODO find by ID
@@ -42,7 +48,15 @@ public class GroupController {
 
     //TODO create
     @PostMapping("/group")
-    public ResponseEntity<Group> createGroup(@RequestBody @Valid Group group) throws URISyntaxException {
+    public ResponseEntity<Group> createGroup(@RequestBody @Valid Group group,
+                                             @AuthenticationPrincipal OAuth2User principal) throws URISyntaxException {
+
+        Map<String, Object> details = principal.getAttributes();
+        String userId = details.get("sub").toString();
+
+        Optional<User> user = userRepository.findById(userId);
+        group.setUser(user.orElse(new User(userId, details.get("name").toString(), details.get("email").toString())));
+
         Group g = repository.save(group);
         return ResponseEntity.created(new URI("/api/v1/group" + g.getId())).body(g);
     }

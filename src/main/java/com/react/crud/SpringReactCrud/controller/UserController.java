@@ -1,6 +1,5 @@
 package com.react.crud.SpringReactCrud.controller;
 
-import com.react.crud.SpringReactCrud.domain.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,3 +44,4 @@ public class UserController {
         return ResponseEntity.ok().body(logoutDetails);
     }
 }
+
