@@ -42,16 +42,31 @@ class Home extends Component{
         fetch('/api/v1/logout', {method: 'POST', credentials: 'include',
         headers:{'X-XSRF-TOKEN': this.state.csrfToken}}).then(res => res.json())
         .then(response => {
-            window.location.href
-        })
+            window.location.href = response.logoutUrl + "?id_token_hint=" +
+            response.idToken + "?post_logout_redirect_uri=" + window.location.origin;
+        });
     }
 
     render() {
+
+        const message = this.state.user ?
+            <h2>Welcome, {this.state.user.name}!</h2> :
+            <p>Please log in to your Account.. </p>;
+
+        const button = this.state.isAuthenticated ?
+          <div>
+            <Button color="link"><Link to="/groups">Manage JUG Tour</Link></Button>
+            <br/>
+            <Button color="link" onClick={this.logout}>Logout</Button>
+          </div> :
+          <Button color="primary" onClick={this.login}>Login</Button>;
+
         return (
             <div>
                 <AppNavbar />
                 <Container fluid>
-                    <Button color="link"><Link to="/groups">Manage Group Tour</Link></Button>
+                    {message}
+                    {button}
                 </Container>
             </div>
         )
