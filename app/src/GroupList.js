@@ -3,28 +3,38 @@ import { Button, ButtonGroup, Container, Table, Spinner} from 'reactstrap';
 import AppNavbar from './AppNavbar';
 import { Link, withRouter } from 'react-router-dom';
 import "./App.css"
+import { withCookies, Cookies } from 'react-cookie';
 
 class GroupList extends Component {
 
+    static propTypes = {
+        cookies: instanceof(Cookies).isRequired
+    };
+
     constructor(props) {
         super(props);
-        this.state = { groups: [], isLoading: true };
+        const {cookies} = this.props;
+        this.state = { groups: [], csrfToken: cookies.get('XSRF-Token'), isLoading: true };
         this.remove = this.remove.bind(this);
     }
 
     componentDidMount() {
         this.setState({isLoading: true});
-        fetch('api/v1/groups')
+        fetch('api/v1/groups', {credentials: 'include'})
             .then(r => r.json())
-            .then(data => this.setState({groups: data, isLoading: false}));
+            .then(data => this.setState({groups: data, isLoading: false}))
+            .catch(() => this.props.history.push('/'));
     }
 
     async remove(id) {
         await fetch(`/api/v1/group/${id}`, {
             method: 'DELETE',
-            headers: {'Accept': 'application/json',
+            headers: {
+                        'X-XSRF-TOKEN': this.state.csrfToken,
+                        'Accept': 'application/json',
                         'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'include'
         }).then(
             () => {
                 let updateGroups = [...this.state.groups].filter(i => i.id !== id);
@@ -90,4 +100,4 @@ class GroupList extends Component {
     }
 }
 
-export default withRouter(GroupList);
+export default withCookies(withRouter(GroupList));

@@ -15,8 +15,10 @@ class Home extends Component{
 
     constructor(props) {
         super(props);
-        const {cookie} = props;
-        this.state.csrfToken = cookie.get('XSRF.TOKEN');
+        const {cookies} = props;
+        this.state.csrfToken = cookies.get('XSRF.TOKEN');
+        this.login = this.login.bind(this);
+        this.logout = this.logout.bind(this);
 
     }
 
@@ -26,7 +28,7 @@ class Home extends Component{
         if( body === '') {
             this.setState(({isAuthenticated: false}));
         } else {
-            this.setState(({isAuthenticated: true, JSON.parse(body)}));
+            this.setState(({isAuthenticated: true, user: JSON.parse(body)}));
         }
     }
 

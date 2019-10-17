@@ -2,8 +2,13 @@ import React, {Component} from 'react';
 import AppNavbar from "./AppNavbar";
 import {Button, Container, Form, FormGroup, Input, Label} from "reactstrap";
 import {Link, withRouter} from "react-router-dom";
+import { Cookies, withCookies } from 'react-cookie';
 
 class GroupEdit extends Component {
+
+    static propTypes = {
+        cookies: instanceof(Cookies).isRequired
+    };
 
     emptyItem = {
         name: '',
@@ -16,17 +21,24 @@ class GroupEdit extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {item: this.emptyItem};
+        this.state = {
+            item: this.emptyItem,
+            csrfToken: cookies.get('XSRF-TOKEN')
+        };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     componentDidMount = async () => {
         if (this.props.match.params.id !== 'new') {
+        try {
             console.log('True');
-            const group = await (await fetch(`/api/v1/group/${this.props.match.params.id}`)).json();
+            const group = await (await fetch(`/api/v1/group/${this.props.match.params.id}`, {credentials: 'include'})).json();
             this.setState({item: group});
             console.log(group.name+'Group Name');
+            } catch (error) {
+                this.props.history.push('/');
+            }
         }
     };
 
@@ -41,15 +53,17 @@ class GroupEdit extends Component {
 
     handleSubmit = async event => {
         event.preventDefault();
-        const {item} = this.state;
+        const {item, csrfToken} = this.state;
         await fetch('/api/v1/group',
             {
                 method: (item.id) ? 'PUT' : 'POST',
                 headers: {
-                    'Access-Control-Allow-Origin': 'http://localhost:3000',
+                    'X-XSRF-TOKEN': this.state.csrfToken,
+                    'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(item)
+                body: JSON.stringify(item),
+                credentials: 'include'
             });
         this.props.history.push('/groups');
     };
@@ -107,4 +121,4 @@ class GroupEdit extends Component {
 
 }
 
-export default withRouter(GroupEdit);
+export default withCookies(withRouter(GroupEdit));
